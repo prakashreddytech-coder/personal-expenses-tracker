@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Expense Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6366f1">
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('SW registered'))
+                .catch(err => console.log('SW error', err));
+        }
+    </script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">ExpenseTracker</div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">Dashboard</a>
+                <a href="manage.html" class="nav-item">Manage</a>
+                <a href="history.html" class="nav-item">History</a>
+                <a href="admin.html" class="nav-item active">Admin Panel</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Top Header -->
+            <header class="top-bar">
+                <div class="welcome-msg">Welcome Admin : <span id="navUsername">User</span></div>
+                <div class="profile-menu">
+                    <div class="profile-icon" onclick="toggleProfileMenu()">
+                        <img src="https://ui-avatars.com/api/?name=User" id="userAvatar" alt="Profile">
+                    </div>
+                    <div class="dropdown-menu" id="profileDropdown">
+                        <a href="profile.html">Edit Profile</a>
+                        <a href="#" onclick="logout()">Logout</a>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="container">
+                <h2 class="mb-4">Admin Dashboard</h2>
+
+                <div class="dashboard-grid">
+                    <div class="card stat-card">
+                        <div class="stat-label">Total Users</div>
+                        <div class="stat-value" id="totalUsers">0</div>
+                    </div>
+                    <div class="card stat-card secondary">
+                        <div class="stat-label">Active Users</div>
+                        <div class="stat-value" id="activeUsers">0</div>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <h3 class="mb-4">User Management</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTableBody">
+                                <!-- Rows loaded via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        loadAdminDashboard();
+    </script>
+</body>
+
+</html>

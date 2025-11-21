@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Expense Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6366f1">
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('SW registered'))
+                .catch(err => console.log('SW error', err));
+        }
+    </script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">ExpenseTracker</div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">Dashboard</a>
+                <a href="manage.html" class="nav-item">Manage</a>
+                <a href="history.html" class="nav-item">History</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Top Header -->
+            <header class="top-bar">
+                <div class="welcome-msg">Welcome : <span id="navUsername">User</span></div>
+                <div class="profile-menu">
+                    <div class="profile-icon" onclick="toggleProfileMenu()">
+                        <img src="https://ui-avatars.com/api/?name=User" id="userAvatar" alt="Profile">
+                    </div>
+                    <div class="dropdown-menu" id="profileDropdown">
+                        <a href="profile.html">Edit Profile</a>
+                        <a href="#" onclick="logout()">Logout</a>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="container">
+                <div id="alertBox" class="alert"></div>
+
+                <div class="card" style="max-width: 600px; margin: 0 auto;">
+                    <h3 class="mb-4">Edit Profile</h3>
+                    <form onsubmit="updateProfile(event)">
+                        <div class="form-group">
+                            <label class="form-label">Username</label>
+                            <input type="text" id="username" name="username" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" id="email" name="email" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">New Password (leave blank to keep current)</label>
+                            <input type="password" name="password" class="form-control" minlength="6">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-full">Update Profile</button>
+                    </form>
+
+                    <hr style="margin: 2rem 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                    <h3 class="mb-4" style="color: var(--danger-color);">Danger Zone</h3>
+                    <p class="mb-4 text-muted">Deleting your account will remove all your data permanently.</p>
+                    <button onclick="deleteAccount()" class="btn btn-danger w-full">Delete Account</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        loadProfile();
+    </script>
+</body>
+
+</html>

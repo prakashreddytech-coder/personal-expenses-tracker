@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage - Expense Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6366f1">
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('SW registered'))
+                .catch(err => console.log('SW error', err));
+        }
+    </script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">ExpenseTracker</div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">Dashboard</a>
+                <a href="manage.html" class="nav-item active">Manage</a>
+                <a href="history.html" class="nav-item">History</a>
+                <a href="admin.html" class="nav-item" id="adminLink" style="display: none;">Admin Panel</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Top Header -->
+            <header class="top-bar">
+                <button class="mobile-menu-btn" onclick="toggleSidebar()"
+                    style="display: none; margin-right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer;">☰</button>
+                <div class="welcome-msg">Welcome : <span id="navUsername">User</span></div>
+                <div class="profile-menu">
+                    <div class="profile-icon" onclick="toggleProfileMenu()">
+                        <img src="https://ui-avatars.com/api/?name=User" id="userAvatar" alt="Profile">
+                    </div>
+                    <div class="dropdown-menu" id="profileDropdown">
+                        <a href="profile.html">Edit Profile</a>
+                        <a href="#" onclick="logout()">Logout</a>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="container">
+                <div id="alertBox" class="alert"></div>
+
+                <div class="dashboard-grid">
+                    <!-- Add Expense -->
+                    <div class="card" style="grid-column: span 2;">
+                        <h3 class="mb-4">Add New Expense</h3>
+                        <form onsubmit="addExpense(event)">
+                            <div class="form-group">
+                                <label class="form-label">Title</label>
+                                <input type="text" name="title" class="form-control" required>
+                            </div>
+                            <div class="dashboard-grid" style="margin-bottom: 0;">
+                                <div class="form-group">
+                                    <label class="form-label">Amount</label>
+                                    <input type="number" name="amount" class="form-control" required min="0.01"
+                                        step="0.01">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Date & Time</label>
+                                    <input type="datetime-local" name="dateTime" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="dashboard-grid" style="margin-bottom: 0;">
+                                <div class="form-group">
+                                    <label class="form-label">Type</label>
+                                    <select name="type" class="form-control" required>
+                                        <option value="DEBIT">Debit</option>
+                                        <option value="CREDIT">Credit</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Mode</label>
+                                    <select name="mode" class="form-control" required
+                                        onchange="toggleModeFields(this.value)">
+                                        <option value="BANK">Bank</option>
+                                        <option value="CARD">Credit Card</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div id="bankField" class="form-group">
+                                <label class="form-label">Select Bank</label>
+                                <select name="bankId" id="bankId" class="form-control">
+                                    <option value="">Loading...</option>
+                                </select>
+                            </div>
+
+                            <div id="cardField" class="form-group" style="display: none;">
+                                <label class="form-label">Select Card</label>
+                                <select name="cardId" id="cardId" class="form-control">
+                                    <option value="">Loading...</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Platform (Optional)</label>
+                                <select name="platformId" id="platformId" class="form-control">
+                                    <option value="">Loading...</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Description</label>
+                                <textarea name="description" class="form-control" rows="2"></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Add Expense</button>
+                        </form>
+                    </div>
+
+                    <!-- Side Panel for Adding Accounts -->
+                    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                        <!-- Add Bank -->
+                        <div class="card">
+                            <h3 class="mb-4">Add Bank</h3>
+                            <form onsubmit="addBank(event)">
+                                <div class="form-group">
+                                    <label class="form-label">Bank Name</label>
+                                    <input type="text" name="name" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Opening Balance</label>
+                                    <input type="number" name="openingBalance" class="form-control" required
+                                        step="0.01">
+                                </div>
+                                <button type="submit" class="btn btn-primary w-full">Add Bank</button>
+                            </form>
+                            <div id="manageBankList" class="mt-4"></div>
+                        </div>
+
+                        <!-- Add Card -->
+                        <div class="card">
+                            <h3 class="mb-4">Add Credit Card</h3>
+                            <form onsubmit="addCard(event)">
+                                <div class="form-group">
+                                    <label class="form-label">Card Name</label>
+                                    <input type="text" name="name" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Total Limit</label>
+                                    <input type="number" name="totalLimit" class="form-control" required step="0.01">
+                                </div>
+                                <button type="submit" class="btn btn-primary w-full">Add Card</button>
+                            </form>
+                            <div id="manageCardList" class="mt-4"></div>
+                        </div>
+
+                        <!-- Add Platform -->
+                        <div class="card">
+                            <h3 class="mb-4">Add Platform</h3>
+                            <form onsubmit="addPlatform(event)">
+                                <div class="form-group">
+                                    <label class="form-label">Platform Name</label>
+                                    <input type="text" name="name" class="form-control" required
+                                        placeholder="e.g. GPay, Amazon">
+                                </div>
+                                <button type="submit" class="btn btn-primary w-full">Add Platform</button>
+                            </form>
+                            <div id="managePlatformList" class="mt-4"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        loadDropdowns();
+        loadManageData();
+
+        function toggleModeFields(mode) {
+            if (mode === 'BANK') {
+                document.getElementById('bankField').style.display = 'block';
+                document.getElementById('cardField').style.display = 'none';
+            } else {
+                document.getElementById('bankField').style.display = 'none';
+                document.getElementById('cardField').style.display = 'block';
+            }
+        }
+    </script>
+</body>
+
+</html>
